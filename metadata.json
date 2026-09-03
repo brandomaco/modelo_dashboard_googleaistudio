@@ -1,0 +1,6 @@
+{
+  "name": "Dashboard Interactivo de KPIs e Insights",
+  "description": "Dashboard interactivo con KPIs clave, análisis de patrones visuales, generación automática de insights y carga de archivos Excel.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
