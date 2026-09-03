@@ -21,7 +21,19 @@ import {
 import { parseExcelBuffer } from './utils/excelParser';
 import { DataRecord, FilterState, InsightItem, KPIKey, SheetInfo } from './types';
 import * as XLSX from 'xlsx';
-import { Sparkles, FileSpreadsheet, Upload, CheckCircle2, Layers } from 'lucide-react';
+import { 
+  Sparkles, 
+  FileSpreadsheet, 
+  Upload, 
+  CheckCircle2, 
+  Layers, 
+  Target, 
+  Lightbulb, 
+  BarChart3, 
+  ArrowRight,
+  HelpCircle,
+  Link2
+} from 'lucide-react';
 
 export default function App() {
   // State for loaded data
@@ -333,6 +345,43 @@ export default function App() {
           onToggleMatrixModal={() => setIsMatrixModalOpen(true)}
         />
 
+        {/* Visual Legend of the Triad Icons: KPI -> Insight -> Chart */}
+        <div className="bg-white rounded-xl p-3 border border-slate-200 shadow-2xs flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs">
+          <div className="flex items-center space-x-2">
+            <span className="font-bold text-slate-800 flex items-center gap-1">
+              <Link2 className="w-3.5 h-3.5 text-blue-600" />
+              Guía de Iconos de Relación:
+            </span>
+            <span className="text-slate-500 hidden sm:inline">
+              Haz clic en cualquier elemento para sincronizar automáticamente los 3 niveles.
+            </span>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            {/* 1. KPI */}
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-blue-50 border border-blue-200 text-blue-900 font-semibold text-xs">
+              <Target className="w-3.5 h-3.5 text-blue-700" />
+              <span>1. 🎯 KPI (Métrica)</span>
+            </div>
+
+            <ArrowRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+
+            {/* 2. Insight */}
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 border border-amber-200 text-amber-900 font-semibold text-xs">
+              <Lightbulb className="w-3.5 h-3.5 text-amber-700" />
+              <span>2. 💡 Insight (Causalidad)</span>
+            </div>
+
+            <ArrowRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+
+            {/* 3. Chart */}
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-teal-50 border border-teal-200 text-teal-900 font-semibold text-xs">
+              <BarChart3 className="w-3.5 h-3.5 text-teal-700" />
+              <span>3. 📊 Gráfico (Evidencia)</span>
+            </div>
+          </div>
+        </div>
+
         {/* 1. Executive KPI Cards with Click & Highlight synchronization */}
         <KPIGrid
           kpis={kpis}
@@ -340,6 +389,7 @@ export default function App() {
           selectedKpiId={selectedKpiId}
           onSelectKpi={handleSelectKpi}
           activeInsight={activeInsight}
+          insights={automatedInsights}
         />
 
         {/* 2. Interactive Filters */}

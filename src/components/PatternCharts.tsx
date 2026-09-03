@@ -11,9 +11,6 @@ import {
   Tooltip,
   Legend,
   CartesianGrid,
-  ScatterChart,
-  Scatter,
-  ZAxis,
   ReferenceLine,
   Cell,
 } from 'recharts';
@@ -24,10 +21,12 @@ import {
   ScatterChart as ScatterIcon, 
   ArrowUpRight,
   Target,
-  Sparkles,
+  BarChart3,
+  Lightbulb,
+  Link2,
+  ArrowRight,
   Layers,
-  LayoutGrid,
-  Lightbulb
+  LayoutGrid
 } from 'lucide-react';
 import { InsightItem, KPIKey } from '../types';
 
@@ -47,7 +46,6 @@ export const PatternCharts: React.FC<PatternChartsProps> = ({
   timeSeriesData,
   categoryData,
   channelData,
-  regionData,
   marginVolumeData,
   highlightedChartId,
   activeInsight,
@@ -81,10 +79,10 @@ export const PatternCharts: React.FC<PatternChartsProps> = ({
   const channelColors = ['#0d9488', '#14b8a6', '#2dd4bf', '#5eead4'];
 
   const chartTabs = [
-    { id: 'time-series' as const, label: 'Evolución Mensual', icon: Calendar },
-    { id: 'category-pareto' as const, label: 'Top Categorías', icon: PieIcon },
-    { id: 'channel-region' as const, label: 'Canales de Venta', icon: Network },
-    { id: 'margin-volume' as const, label: 'Rentabilidad vs Volumen', icon: ScatterIcon },
+    { id: 'time-series' as const, label: 'Evolución Mensual', icon: Calendar, chartNum: '1' },
+    { id: 'category-pareto' as const, label: 'Top Categorías', icon: PieIcon, chartNum: '2' },
+    { id: 'channel-region' as const, label: 'Canales de Venta', icon: Network, chartNum: '3' },
+    { id: 'margin-volume' as const, label: 'Rentabilidad vs Volumen', icon: ScatterIcon, chartNum: '4' },
   ];
 
   return (
@@ -92,8 +90,9 @@ export const PatternCharts: React.FC<PatternChartsProps> = ({
       {/* Chart View Selector / Tabs */}
       <div className="bg-white rounded-xl border border-slate-200 p-2.5 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-1.5">
-          <span className="text-xs font-semibold text-slate-500 mr-1 hidden md:inline">
-            Gráfico a visualizar:
+          <span className="text-xs font-bold text-teal-800 bg-teal-50 border border-teal-200 px-2 py-1 rounded-md mr-1 flex items-center gap-1">
+            <BarChart3 className="w-3.5 h-3.5 text-teal-600" />
+            3. Gráficos
           </span>
           {chartTabs.map((tab) => {
             const Icon = tab.icon;
@@ -104,7 +103,7 @@ export const PatternCharts: React.FC<PatternChartsProps> = ({
                 onClick={() => setActiveTab(tab.id)}
                 className={`px-3 py-2 rounded-lg text-xs font-semibold transition flex items-center gap-1.5 ${
                   isActive
-                    ? 'bg-blue-600 text-white shadow-xs'
+                    ? 'bg-teal-700 text-white shadow-xs'
                     : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                 }`}
               >
@@ -145,13 +144,14 @@ export const PatternCharts: React.FC<PatternChartsProps> = ({
             id="time-series"
             className={`bg-white rounded-xl border p-5 transition-all duration-300 ${
               highlightedChartId === 'time-series'
-                ? 'border-blue-500 ring-4 ring-blue-500/20 shadow-md'
+                ? 'border-teal-500 ring-4 ring-teal-500/20 shadow-md'
                 : 'border-slate-200 shadow-xs'
             }`}
           >
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-2">
+            {/* Header with Title and Peak Badge */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-100 gap-2">
               <div className="flex items-center space-x-2.5">
-                <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                <div className="w-8 h-8 rounded-lg bg-teal-50 text-teal-600 flex items-center justify-center shrink-0 border border-teal-200">
                   <Calendar className="w-4 h-4" />
                 </div>
                 <div>
@@ -160,8 +160,8 @@ export const PatternCharts: React.FC<PatternChartsProps> = ({
                       1. Evolución Temporal y Facturación Mensual
                     </h3>
                     {highlightedChartId === 'time-series' && (
-                      <span className="text-xs font-semibold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200 animate-pulse">
-                        Gráfico Seleccionado
+                      <span className="text-xs font-semibold text-teal-800 bg-teal-50 px-2 py-0.5 rounded-full border border-teal-200 animate-pulse">
+                        Gráfico Activo
                       </span>
                     )}
                   </div>
@@ -171,27 +171,38 @@ export const PatternCharts: React.FC<PatternChartsProps> = ({
                 </div>
               </div>
 
-              {/* Connected KPI and Peak badges */}
-              <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto">
-                <button
-                  onClick={() => onSelectKpi?.('revenue')}
-                  className="text-xs font-semibold bg-slate-100 hover:bg-blue-50 text-slate-700 hover:text-blue-700 border border-slate-200 px-2.5 py-1 rounded-lg flex items-center gap-1 transition"
-                  title="Ver KPI asociado"
-                >
-                  <Target className="w-3.5 h-3.5 text-blue-600" />
-                  <span>KPI: Facturación Total</span>
-                </button>
-                {maxMonth && (
-                  <div className="text-xs font-medium bg-blue-50 text-blue-800 border border-blue-200 px-2.5 py-1 rounded-lg flex items-center">
-                    <ArrowUpRight className="w-3.5 h-3.5 mr-1 text-blue-600" />
-                    Pico: <strong className="ml-1">{maxMonth.label}</strong> ({formatCurrency(maxMonth.revenue)})
-                  </div>
-                )}
-              </div>
+              {maxMonth && (
+                <div className="text-xs font-medium bg-blue-50 text-blue-800 border border-blue-200 px-2.5 py-1 rounded-lg flex items-center self-start sm:self-auto">
+                  <ArrowUpRight className="w-3.5 h-3.5 mr-1 text-blue-600" />
+                  Pico: <strong className="ml-1">{maxMonth.label}</strong> ({formatCurrency(maxMonth.revenue)})
+                </div>
+              )}
+            </div>
+
+            {/* TRIAD RELATIONSHIP RIBBON WITH EXPLICIT ICONS */}
+            <div className="mt-3 p-2 bg-slate-50 border border-slate-200 rounded-lg flex flex-wrap items-center gap-2 text-xs">
+              <span className="inline-flex items-center gap-1 font-bold text-teal-800 bg-teal-100/70 border border-teal-200 px-2 py-0.5 rounded">
+                <BarChart3 className="w-3.5 h-3.5 text-teal-700" />
+                📊 Gráfico Demostrativo
+              </span>
+              <ArrowRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+              <button
+                onClick={() => onSelectKpi?.('revenue')}
+                className="inline-flex items-center gap-1 font-bold text-blue-800 bg-blue-100/80 hover:bg-blue-200 border border-blue-200 px-2 py-0.5 rounded transition cursor-pointer"
+                title="Ir al KPI"
+              >
+                <Target className="w-3.5 h-3.5 text-blue-700" />
+                🎯 Respalda KPI: Facturación Total
+              </button>
+              <ArrowRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+              <span className="inline-flex items-center gap-1 font-bold text-amber-800 bg-amber-100/80 border border-amber-200 px-2 py-0.5 rounded">
+                <Lightbulb className="w-3.5 h-3.5 text-amber-700" />
+                💡 Explica Insight: Crecimiento Estacional en Q4
+              </span>
             </div>
 
             {/* Quick Executive Conclusion Banner */}
-            <div className="mt-3 p-3 bg-slate-50 rounded-xl border border-slate-200 flex items-start gap-2.5 text-xs text-slate-700">
+            <div className="mt-2.5 p-3 bg-slate-50 rounded-xl border border-slate-200 flex items-start gap-2.5 text-xs text-slate-700">
               <Lightbulb className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
               <div>
                 <strong className="font-semibold text-slate-900">Conclusión Directa: </strong>
@@ -206,8 +217,8 @@ export const PatternCharts: React.FC<PatternChartsProps> = ({
               <div className="mt-3 p-3 bg-blue-50/80 rounded-xl border border-blue-200 text-xs text-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-2 animate-in fade-in">
                 <div className="space-y-0.5">
                   <div className="flex items-center gap-1.5 font-bold text-blue-950">
-                    <Sparkles className="w-3.5 h-3.5 text-blue-600" />
-                    <span>Tríada Activa: {activeInsight.title}</span>
+                    <Link2 className="w-3.5 h-3.5 text-blue-600" />
+                    <span>Tríada Sincronizada: {activeInsight.title}</span>
                   </div>
                   <p className="text-slate-600 text-[11px]">
                     <strong className="text-blue-900">Cómo leer el gráfico:</strong> {activeInsight.triadExplanation.chartProof}
@@ -215,7 +226,7 @@ export const PatternCharts: React.FC<PatternChartsProps> = ({
                 </div>
                 <button 
                   onClick={() => onSelectKpi?.('revenue')}
-                  className="text-xs font-semibold text-blue-700 hover:text-blue-900 underline whitespace-nowrap self-start sm:self-auto"
+                  className="text-xs font-semibold text-blue-700 hover:text-blue-900 underline whitespace-nowrap self-start sm:self-auto cursor-pointer"
                 >
                   Ver KPI Facturación ↗
                 </button>
@@ -295,13 +306,13 @@ export const PatternCharts: React.FC<PatternChartsProps> = ({
             id="category-pareto"
             className={`bg-white rounded-xl border p-5 transition-all duration-300 ${
               highlightedChartId === 'category-pareto'
-                ? 'border-blue-500 ring-4 ring-blue-500/20 shadow-md'
+                ? 'border-teal-500 ring-4 ring-teal-500/20 shadow-md'
                 : 'border-slate-200 shadow-xs'
             }`}
           >
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-2">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-100 gap-2">
               <div className="flex items-center space-x-2.5">
-                <div className="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+                <div className="w-8 h-8 rounded-lg bg-teal-50 text-teal-600 flex items-center justify-center shrink-0 border border-teal-200">
                   <PieIcon className="w-4 h-4" />
                 </div>
                 <div>
@@ -310,29 +321,42 @@ export const PatternCharts: React.FC<PatternChartsProps> = ({
                       2. Concentración por Categorías (Curva Pareto 80/20)
                     </h3>
                     {highlightedChartId === 'category-pareto' && (
-                      <span className="text-xs font-semibold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200 animate-pulse">
-                        Gráfico Seleccionado
+                      <span className="text-xs font-semibold text-teal-800 bg-teal-50 px-2 py-0.5 rounded-full border border-teal-200 animate-pulse">
+                        Gráfico Activo
                       </span>
                     )}
                   </div>
                   <p className="text-xs text-slate-500">
-                    Ventas individuales por categoría y porcentaje acumulado
+                    Ventas individuales por categoría y porcentaje acumulado de volumen
                   </p>
                 </div>
               </div>
+            </div>
 
+            {/* TRIAD RELATIONSHIP RIBBON WITH EXPLICIT ICONS */}
+            <div className="mt-3 p-2 bg-slate-50 border border-slate-200 rounded-lg flex flex-wrap items-center gap-2 text-xs">
+              <span className="inline-flex items-center gap-1 font-bold text-teal-800 bg-teal-100/70 border border-teal-200 px-2 py-0.5 rounded">
+                <BarChart3 className="w-3.5 h-3.5 text-teal-700" />
+                📊 Gráfico Demostrativo
+              </span>
+              <ArrowRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />
               <button
                 onClick={() => onSelectKpi?.('leaders')}
-                className="text-xs font-semibold bg-slate-100 hover:bg-indigo-50 text-slate-700 hover:text-indigo-700 border border-slate-200 px-2.5 py-1 rounded-lg flex items-center gap-1 transition self-start sm:self-auto"
-                title="Ver KPI asociado"
+                className="inline-flex items-center gap-1 font-bold text-amber-800 bg-amber-100/80 hover:bg-amber-200 border border-amber-200 px-2 py-0.5 rounded transition cursor-pointer"
+                title="Ir al KPI Líderes"
               >
-                <Target className="w-3.5 h-3.5 text-indigo-600" />
-                <span>KPI: Líderes de Mercado</span>
+                <Target className="w-3.5 h-3.5 text-amber-700" />
+                🎯 Respalda KPI: Líderes Comerciales
               </button>
+              <ArrowRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+              <span className="inline-flex items-center gap-1 font-bold text-amber-800 bg-amber-100/80 border border-amber-200 px-2 py-0.5 rounded">
+                <Lightbulb className="w-3.5 h-3.5 text-amber-700" />
+                💡 Explica Insight: Concentración 80/20 en Portafolio
+              </span>
             </div>
 
             {/* Quick Executive Conclusion Banner */}
-            <div className="mt-3 p-3 bg-slate-50 rounded-xl border border-slate-200 flex items-start gap-2.5 text-xs text-slate-700">
+            <div className="mt-2.5 p-3 bg-slate-50 rounded-xl border border-slate-200 flex items-start gap-2.5 text-xs text-slate-700">
               <Lightbulb className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
               <div>
                 <strong className="font-semibold text-slate-900">Conclusión Directa: </strong>
@@ -346,8 +370,8 @@ export const PatternCharts: React.FC<PatternChartsProps> = ({
             {highlightedChartId === 'category-pareto' && activeInsight && (
               <div className="mt-3 p-3 bg-blue-50/80 rounded-xl border border-blue-200 text-xs text-slate-800 space-y-0.5 animate-in fade-in">
                 <div className="flex items-center gap-1.5 font-bold text-blue-950">
-                  <Sparkles className="w-3.5 h-3.5 text-blue-600" />
-                  <span>Tríada Activa: {activeInsight.title}</span>
+                  <Link2 className="w-3.5 h-3.5 text-blue-600" />
+                  <span>Tríada Sincronizada: {activeInsight.title}</span>
                 </div>
                 <p className="text-slate-600 text-[11px]">
                   <strong className="text-blue-900">Evidencia gráfica:</strong> {activeInsight.triadExplanation.chartProof}
@@ -403,13 +427,13 @@ export const PatternCharts: React.FC<PatternChartsProps> = ({
             id="channel-region"
             className={`bg-white rounded-xl border p-5 transition-all duration-300 ${
               highlightedChartId === 'channel-region'
-                ? 'border-blue-500 ring-4 ring-blue-500/20 shadow-md'
+                ? 'border-teal-500 ring-4 ring-teal-500/20 shadow-md'
                 : 'border-slate-200 shadow-xs'
             }`}
           >
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-2">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-100 gap-2">
               <div className="flex items-center space-x-2.5">
-                <div className="w-8 h-8 rounded-lg bg-teal-50 text-teal-600 flex items-center justify-center shrink-0">
+                <div className="w-8 h-8 rounded-lg bg-teal-50 text-teal-600 flex items-center justify-center shrink-0 border border-teal-200">
                   <Network className="w-4 h-4" />
                 </div>
                 <div>
@@ -418,8 +442,8 @@ export const PatternCharts: React.FC<PatternChartsProps> = ({
                       3. Desempeño por Canal de Venta
                     </h3>
                     {highlightedChartId === 'channel-region' && (
-                      <span className="text-xs font-semibold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200 animate-pulse">
-                        Gráfico Seleccionado
+                      <span className="text-xs font-semibold text-teal-800 bg-teal-50 px-2 py-0.5 rounded-full border border-teal-200 animate-pulse">
+                        Gráfico Activo
                       </span>
                     )}
                   </div>
@@ -428,19 +452,32 @@ export const PatternCharts: React.FC<PatternChartsProps> = ({
                   </p>
                 </div>
               </div>
+            </div>
 
+            {/* TRIAD RELATIONSHIP RIBBON WITH EXPLICIT ICONS */}
+            <div className="mt-3 p-2 bg-slate-50 border border-slate-200 rounded-lg flex flex-wrap items-center gap-2 text-xs">
+              <span className="inline-flex items-center gap-1 font-bold text-teal-800 bg-teal-100/70 border border-teal-200 px-2 py-0.5 rounded">
+                <BarChart3 className="w-3.5 h-3.5 text-teal-700" />
+                📊 Gráfico Demostrativo
+              </span>
+              <ArrowRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />
               <button
-                onClick={() => onSelectKpi?.('revenue')}
-                className="text-xs font-semibold bg-slate-100 hover:bg-teal-50 text-slate-700 hover:text-teal-700 border border-slate-200 px-2.5 py-1 rounded-lg flex items-center gap-1 transition self-start sm:self-auto"
-                title="Ver KPI asociado"
+                onClick={() => onSelectKpi?.('units')}
+                className="inline-flex items-center gap-1 font-bold text-indigo-800 bg-indigo-100/80 hover:bg-indigo-200 border border-indigo-200 px-2 py-0.5 rounded transition cursor-pointer"
+                title="Ir al KPI Volumen"
               >
-                <Target className="w-3.5 h-3.5 text-teal-600" />
-                <span>KPI: Facturación Total</span>
+                <Target className="w-3.5 h-3.5 text-indigo-700" />
+                🎯 Respalda KPI: Volumen y Ticket
               </button>
+              <ArrowRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+              <span className="inline-flex items-center gap-1 font-bold text-amber-800 bg-amber-100/80 border border-amber-200 px-2 py-0.5 rounded">
+                <Lightbulb className="w-3.5 h-3.5 text-amber-700" />
+                💡 Explica Insight: Dependencia de Canales Tradicionales vs Digital
+              </span>
             </div>
 
             {/* Quick Executive Conclusion Banner */}
-            <div className="mt-3 p-3 bg-slate-50 rounded-xl border border-slate-200 flex items-start gap-2.5 text-xs text-slate-700">
+            <div className="mt-2.5 p-3 bg-slate-50 rounded-xl border border-slate-200 flex items-start gap-2.5 text-xs text-slate-700">
               <Lightbulb className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
               <div>
                 <strong className="font-semibold text-slate-900">Conclusión Directa: </strong>
@@ -452,8 +489,8 @@ export const PatternCharts: React.FC<PatternChartsProps> = ({
             {highlightedChartId === 'channel-region' && activeInsight && (
               <div className="mt-3 p-3 bg-blue-50/80 rounded-xl border border-blue-200 text-xs text-slate-800 space-y-0.5 animate-in fade-in">
                 <div className="flex items-center gap-1.5 font-bold text-blue-950">
-                  <Sparkles className="w-3.5 h-3.5 text-blue-600" />
-                  <span>Tríada Activa: {activeInsight.title}</span>
+                  <Link2 className="w-3.5 h-3.5 text-blue-600" />
+                  <span>Tríada Sincronizada: {activeInsight.title}</span>
                 </div>
                 <p className="text-slate-600 text-[11px]">
                   <strong className="text-blue-900">Evidencia gráfica:</strong> {activeInsight.triadExplanation.chartProof}
@@ -506,13 +543,13 @@ export const PatternCharts: React.FC<PatternChartsProps> = ({
             id="margin-volume"
             className={`bg-white rounded-xl border p-5 transition-all duration-300 ${
               highlightedChartId === 'margin-volume'
-                ? 'border-blue-500 ring-4 ring-blue-500/20 shadow-md'
+                ? 'border-teal-500 ring-4 ring-teal-500/20 shadow-md'
                 : 'border-slate-200 shadow-xs'
             }`}
           >
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-2">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-100 gap-2">
               <div className="flex items-center space-x-2.5">
-                <div className="w-8 h-8 rounded-lg bg-amber-50 text-amber-700 flex items-center justify-center shrink-0">
+                <div className="w-8 h-8 rounded-lg bg-teal-50 text-teal-600 flex items-center justify-center shrink-0 border border-teal-200">
                   <ScatterIcon className="w-4 h-4" />
                 </div>
                 <div>
@@ -521,8 +558,8 @@ export const PatternCharts: React.FC<PatternChartsProps> = ({
                       4. Matriz de Rentabilidad vs. Volumen (Portafolio)
                     </h3>
                     {highlightedChartId === 'margin-volume' && (
-                      <span className="text-xs font-semibold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full border border-blue-200 animate-pulse">
-                        Gráfico Seleccionado
+                      <span className="text-xs font-semibold text-teal-800 bg-teal-50 px-2 py-0.5 rounded-full border border-teal-200 animate-pulse">
+                        Gráfico Activo
                       </span>
                     )}
                   </div>
@@ -531,19 +568,32 @@ export const PatternCharts: React.FC<PatternChartsProps> = ({
                   </p>
                 </div>
               </div>
+            </div>
 
+            {/* TRIAD RELATIONSHIP RIBBON WITH EXPLICIT ICONS */}
+            <div className="mt-3 p-2 bg-slate-50 border border-slate-200 rounded-lg flex flex-wrap items-center gap-2 text-xs">
+              <span className="inline-flex items-center gap-1 font-bold text-teal-800 bg-teal-100/70 border border-teal-200 px-2 py-0.5 rounded">
+                <BarChart3 className="w-3.5 h-3.5 text-teal-700" />
+                📊 Gráfico Demostrativo
+              </span>
+              <ArrowRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />
               <button
                 onClick={() => onSelectKpi?.('profit')}
-                className="text-xs font-semibold bg-slate-100 hover:bg-emerald-50 text-slate-700 hover:text-emerald-800 border border-slate-200 px-2.5 py-1 rounded-lg flex items-center gap-1 transition self-start sm:self-auto"
-                title="Ver KPI asociado"
+                className="inline-flex items-center gap-1 font-bold text-emerald-800 bg-emerald-100/80 hover:bg-emerald-200 border border-emerald-200 px-2 py-0.5 rounded transition cursor-pointer"
+                title="Ir al KPI Beneficio"
               >
-                <Target className="w-3.5 h-3.5 text-emerald-600" />
-                <span>KPI: Beneficio & Margen</span>
+                <Target className="w-3.5 h-3.5 text-emerald-700" />
+                🎯 Respalda KPI: Beneficio & Margen
               </button>
+              <ArrowRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+              <span className="inline-flex items-center gap-1 font-bold text-amber-800 bg-amber-100/80 border border-amber-200 px-2 py-0.5 rounded">
+                <Lightbulb className="w-3.5 h-3.5 text-amber-700" />
+                💡 Explica Insight: Margen Digital y Productos Estrella
+              </span>
             </div>
 
             {/* Quick Executive Conclusion Banner */}
-            <div className="mt-3 p-3 bg-slate-50 rounded-xl border border-slate-200 flex items-start gap-2.5 text-xs text-slate-700">
+            <div className="mt-2.5 p-3 bg-slate-50 rounded-xl border border-slate-200 flex items-start gap-2.5 text-xs text-slate-700">
               <Lightbulb className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
               <div>
                 <strong className="font-semibold text-slate-900">Conclusión Directa: </strong>
@@ -555,8 +605,8 @@ export const PatternCharts: React.FC<PatternChartsProps> = ({
             {highlightedChartId === 'margin-volume' && activeInsight && (
               <div className="mt-3 p-3 bg-blue-50/80 rounded-xl border border-blue-200 text-xs text-slate-800 space-y-0.5 animate-in fade-in">
                 <div className="flex items-center gap-1.5 font-bold text-blue-950">
-                  <Sparkles className="w-3.5 h-3.5 text-blue-600" />
-                  <span>Tríada Activa: {activeInsight.title}</span>
+                  <Link2 className="w-3.5 h-3.5 text-blue-600" />
+                  <span>Tríada Sincronizada: {activeInsight.title}</span>
                 </div>
                 <p className="text-slate-600 text-[11px]">
                   <strong className="text-blue-900">Evidencia gráfica:</strong> {activeInsight.triadExplanation.chartProof}
@@ -564,84 +614,35 @@ export const PatternCharts: React.FC<PatternChartsProps> = ({
               </div>
             )}
 
-            {/* Legend / Quadrants Explanatory Pills */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-3 pt-1 text-xs">
-              <div className="bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-lg p-2">
-                <span className="font-semibold block">🌟 Estrellas</span>
-                <span className="text-[11px] text-emerald-700">Alto Margen & Alto Volumen</span>
-              </div>
-              <div className="bg-blue-50 text-blue-800 border border-blue-200 rounded-lg p-2">
-                <span className="font-semibold block">💎 Oportunidad</span>
-                <span className="text-[11px] text-blue-700">Alto Margen & Volumen por Escalar</span>
-              </div>
-              <div className="bg-amber-50 text-amber-800 border border-amber-200 rounded-lg p-2">
-                <span className="font-semibold block">🚜 Flujo / Tractor</span>
-                <span className="text-[11px] text-amber-700">Alto Volumen & Margen Ajustado</span>
-              </div>
-              <div className="bg-rose-50 text-rose-800 border border-rose-200 rounded-lg p-2">
-                <span className="font-semibold block">⚠️ En Observación</span>
-                <span className="text-[11px] text-rose-700">Bajo Margen & Bajo Volumen</span>
-              </div>
-            </div>
-
             <div className="h-80 w-full mt-4">
               <ResponsiveContainer width="100%" height="100%">
-                <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 10 }}>
+                <BarChart data={marginVolumeData} margin={{ top: 10, right: 20, left: 10, bottom: 20 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                  <XAxis
-                    type="number"
-                    dataKey="units"
-                    name="Unidades Vendidas"
-                    stroke="#64748b"
-                    fontSize={12}
-                    tickLine={false}
-                    label={{ value: 'Volumen de Unidades', position: 'insideBottom', offset: -10, fill: '#64748b', fontSize: 11 }}
-                  />
-                  <YAxis
-                    type="number"
-                    dataKey="margin"
-                    name="Margen (%)"
-                    stroke="#64748b"
-                    fontSize={12}
-                    tickLine={false}
-                    tickFormatter={(v) => `${v}%`}
-                    label={{ value: 'Margen de Rentabilidad (%)', angle: -90, position: 'insideLeft', fill: '#64748b', fontSize: 11 }}
-                  />
-                  <ZAxis type="number" dataKey="revenue" range={[60, 450]} name="Facturación" />
+                  <XAxis dataKey="product" stroke="#64748b" fontSize={11} interval={0} angle={-15} textAnchor="end" />
+                  <YAxis yAxisId="left" stroke="#64748b" fontSize={12} tickLine={false} tickFormatter={(v) => `${v}%`} />
+                  <YAxis yAxisId="right" orientation="right" stroke="#059669" fontSize={12} tickLine={false} tickFormatter={formatCurrency} />
                   <Tooltip
-                    cursor={{ strokeDasharray: '3 3' }}
-                    content={({ active, payload }) => {
-                      if (active && payload && payload.length) {
-                        const data = payload[0].payload;
-                        return (
-                          <div className="bg-slate-900 text-white p-3 rounded-lg shadow-xl text-xs space-y-1">
-                            <div className="font-bold text-sm text-blue-300">{data.name}</div>
-                            <div className="text-slate-400">Categoría: {data.category}</div>
-                            <div className="text-slate-200 pt-1 border-t border-slate-800">
-                              Facturación: <span className="font-semibold">{formatCurrency(data.revenue)}</span>
-                            </div>
-                            <div className="text-emerald-400">
-                              Margen: <span className="font-semibold">{data.margin}%</span>
-                            </div>
-                            <div className="text-slate-300">
-                              Unidades: <span className="font-semibold">{data.units}</span>
-                            </div>
-                          </div>
-                        );
-                      }
-                      return null;
+                    contentStyle={{
+                      backgroundColor: '#0f172a',
+                      border: 'none',
+                      borderRadius: '8px',
+                      color: '#fff',
+                      fontSize: '12px',
+                    }}
+                    formatter={(val: any, name: string) => {
+                      if (name.includes('Margen')) return [`${val}%`, name];
+                      return [new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'USD' }).format(val), name];
                     }}
                   />
-                  <ReferenceLine y={45} stroke="#cbd5e1" strokeDasharray="4 4" />
-                  <Scatter name="Productos" data={marginVolumeData} fill="#3b82f6">
-                    {marginVolumeData.map((entry, index) => {
-                      let color = '#3b82f6';
-                      if (entry.margin >= 55) color = '#059669'; // High margin
-                      else if (entry.margin < 30) color = '#e11d48'; // Low margin
-                      return <Cell key={`scatter-${index}`} fill={color} opacity={0.75} />;
-                    })}
-                  </Scatter>
-                </ScatterChart>
+                  <Legend wrapperStyle={{ fontSize: '12px', paddingTop: '10px' }} />
+                  <Bar yAxisId="left" dataKey="margin" name="Margen (%)" fill="#10b981" radius={[4, 4, 0, 0]}>
+                    {marginVolumeData.map((entry, index) => (
+                      <Cell key={`mv-cell-${index}`} fill={entry.margin > 50 ? '#059669' : '#10b981'} />
+                    ))}
+                  </Bar>
+                  <Line yAxisId="right" type="monotone" dataKey="revenue" name="Facturación" stroke="#2563eb" strokeWidth={2} />
+                  <ReferenceLine yAxisId="left" y={40} stroke="#f59e0b" strokeDasharray="4 4" label={{ value: 'Margen Objetivo (40%)', fill: '#d97706', fontSize: 11 }} />
+                </BarChart>
               </ResponsiveContainer>
             </div>
           </div>
